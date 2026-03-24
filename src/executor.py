@@ -5,7 +5,7 @@ from a2a.server.events import EventQueue
 from a2a.server.tasks import TaskUpdater
 from a2a.types import TaskState, UnsupportedOperationError, InvalidRequestError
 from a2a.utils.errors import ServerError
-from a2a.utils import new_agent_text_message, new_task, get_message_text
+from a2a.utils import new_agent_text_message, new_task
 
 from agent import Agent
 
@@ -39,7 +39,7 @@ class Executor(AgentExecutor):
         await updater.start_work()
 
         try:
-            await agent.run(msg, updater)
+            await agent.run(msg, updater, context_id=ctx_id, task_id=task.id)
             if not updater._terminal_state_reached:
                 await updater.complete()
         except Exception as e:
