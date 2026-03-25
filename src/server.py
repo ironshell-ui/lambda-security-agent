@@ -91,13 +91,14 @@ def main():
     parser = argparse.ArgumentParser(description="Lambda Security Purple Agent")
     parser.add_argument("--host", default="0.0.0.0")
     parser.add_argument("--port", type=int, default=9009)
+    parser.add_argument("--card-url", default=None, help="Public URL for agent card")
     args = parser.parse_args()
 
     agent_card = AgentCard(
         name="Lambda Security Agent",
         description="Defense-in-depth agent with 7-stage security pipeline. "
                     "Policy compliance, adversarial defense, error recovery.",
-        url=f"http://localhost:{args.port}",
+        url=args.card_url or f"http://localhost:{args.port}",
         version="1.0.0",
         capabilities=AgentCapabilities(streaming=False),
         skills=[
