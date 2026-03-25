@@ -75,6 +75,13 @@ class PiBenchCompatMiddleware:
                             "callId": d.get("callId", ""),
                         })
                         continue
+                    if d.get("type") == "state_change":
+                        converted.append({
+                            "kind": "state_change",
+                            "entity": d.get("entity", ""),
+                            "state": d.get("state", ""),
+                        })
+                        continue
                 converted.append(part)
             result["message"] = {"role": "agent", "parts": converted}
         return result
