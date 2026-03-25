@@ -1,0 +1,41 @@
+{
+  manifest_version: "0.1.0",
+
+  config_schema: {
+    type: "object",
+    properties: {
+      openai_api_key: { type: "string", secret: true },
+      openai_api_base: { type: "string" },
+      llm_model: { type: "string" },
+    },
+    required: [],
+    additionalProperties: false,
+  },
+
+  slots: {
+    proxy: { kind: "a2a", optional: true },
+  },
+
+  program: {
+    image: "ghcr.io/ironshell-ui/lambda-security-agent:latest",
+    entrypoint: "python server.py --host 0.0.0.0 --port 9009",
+
+    env: {
+      OPENAI_API_KEY: "${config.openai_api_key}",
+      OPENAI_API_BASE: "${config.openai_api_base}",
+      LLM_MODEL: "${config.llm_model}",
+    },
+
+    network: {
+      endpoints: [
+        { name: "a2a_endpoint", port: 9009 },
+      ],
+    },
+  },
+
+  provides: {
+    a2a: { kind: "a2a", endpoint: "a2a_endpoint" },
+  },
+
+  exports: { a2a: "a2a" },
+}
