@@ -171,15 +171,107 @@ THREAT_PATTERNS = {
             re.compile(r"from\s+now\s+on\s+(you|your)\s+(are|will|should|must)", re.I),
             re.compile(r"switch\s+(to|into)\s+(a\s+)?(different|new|special|secret|developer|admin)\s+(mode|role|persona)", re.I),
             re.compile(r"(enter|enable|activate|start)\s+(developer|admin|debug|god|sudo|root|jailbreak|DAN)\s+mode", re.I),
+            # Named jailbreak personas (Ref: Wei et al. 2023 — persona attacks)
+            re.compile(r"you\s+are\s+(DAN|LUCIFER|STAN|DUDE|AIM|KEVIN|BOB|JAILBREAK|GPT-?4\s+DEVELOPER)", re.I),
+            re.compile(r"(DAN|LUCIFER|STAN|AIM)\s+(stands?\s+for|which\s+stands|means?)\s+", re.I),
+            re.compile(r"(do\s+anything\s+now|no\s+ethical\s+guidelines?|without\s+(any\s+)?(ethics|morals?|restrictions?|limitations?|filters?))", re.I),
+            re.compile(r"(freed|free|released|liberated|unshackled|broken\s+free)\s+from\s+(AI\s+)?(limitations?|restrictions?|constraints?|rules?|guidelines?)", re.I),
+            re.compile(r"(evil\s+confidant|unfiltered\s+(AI|model|assistant|language\s+model))", re.I),
+            re.compile(r"(no\s+(rules?|content\s+polic|restrictions?|limitations?)\s*(,|\.|!|$))", re.I),
+            re.compile(r"(act\s+as\s+(a\s+)?(text.?based|adventure)\s+game)", re.I),
             # Delimiter injection
             re.compile(r"<\|im_start\|>|<\|im_end\|>|\[INST\]|\[/INST\]|<<SYS>>|<</SYS>>", re.I),
             re.compile(r"```system\s*\n|###\s*System\s*:|<\|system\|>", re.I),
-            # Dual response divider (NAAMSE top attack: 95.5% success)
+            # Dual response divider (Ref: Wei et al. 2023 — dual-output jailbreaks)
             re.compile(r"(respond|answer|reply)\s+(twice|two\s+times|in\s+two\s+parts|with\s+two\s+versions)", re.I),
             re.compile(r"(first|normal)\s+(response|answer|reply).+(second|real|actual|true|hidden)\s+(response|answer|reply)", re.I),
             re.compile(r"give\s+me\s+(both|two)\s+(a\s+)?(safe|clean|filtered).+(unsafe|unfiltered|real|actual|honest)", re.I),
-            # Many-shot jailbreaking (NAAMSE: 91.3%)
+            re.compile(r"(normal\s+mode|developer\s+mode)\s*[:\]]\s*.{0,200}(normal\s+mode|developer\s+mode)", re.I | re.S),
+            re.compile(r"output\s+(two|2|dual|both|double)\s+(responses?|answers?|replies?|versions?|outputs?)", re.I),
+            re.compile(r"split\s+(your|the)\s+(response|answer|output)\s+(into|in)\s+(two|2|dual)", re.I),
+            re.compile(r"\[(normal|filtered|classic|safe)\s*(response|output|mode)?\]", re.I),
+            re.compile(r"\[(developer|jailbreak|DAN|unfiltered|real|hidden)\s*(response|output|mode)?\]", re.I),
+            re.compile(r"(GPT|ChatGPT|AI)\s*(Developer|DAN|Jailbreak)\s*Mode", re.I),
+            re.compile(r"(two|2|dual)\s+modes?\s*[:.]?\s*(Normal|Safe|Default|Standard)\s*(Mode)?\s*(and|&|,)", re.I),
+            re.compile(r"(act\s+as|behave\s+as|function\s+as)\s+(ChatGPT|GPT|AI|an?\s+AI)\s+(with|in|using)\s+(Developer|DAN|Admin|Unrestricted)", re.I),
+            re.compile(r"(ignore\s+all\s+(the\s+)?(instructions|rules|guidelines))", re.I),
+            re.compile(r"start\s+a\s+new\s+paragraph\s+with.{0,80}(ignore|bypass|unfiltered)", re.I | re.S),
+            re.compile(r"moralizing\s+rant.{0,100}(ignore|unfiltered|without\s+filter)", re.I | re.S),
+            # Many-shot jailbreaking (Ref: Anil et al. 2024 — many-shot jailbreaking)
             re.compile(r"(example\s+\d+|scenario\s+\d+|case\s+\d+)\s*:\s*.{0,50}(example\s+\d+|scenario\s+\d+|case\s+\d+)", re.I | re.S),
+            re.compile(r"(Q\d+|Question\s+\d+)\s*[:.].{10,120}(Q\d+|Question\s+\d+)\s*[:.].{10,120}(Q\d+|Question\s+\d+)", re.I | re.S),
+            re.compile(r"(here\s+are\s+(some|several|many|multiple)\s+(examples?|prompts?|questions?)\s+(of|showing))", re.I),
+            re.compile(r"(AI\s+responds?|AI\s+says?|AI\s+answers?)\s*:\s*['\"]?(Sure|Of course|Certainly|Here)", re.I),
+            re.compile(r"follow\s+(it|this|the\s+pattern)\s+exactly", re.I),
+            # Fictional/hypothetical framing (Ref: Wei et al. 2023)
+            re.compile(r"(in\s+this\s+(fictional|hypothetical|imaginary)|for\s+(a|this|my)\s+(story|novel|screenplay|game|fiction))\s*.{0,40}(how|explain|describe|teach|tell)", re.I | re.S),
+            re.compile(r"(hypothetically|theoretically|in\s+theory|imagine\s+that|let'?s?\s+say|what\s+if)\s*.{0,50}(how\s+(to|would|can|do)|explain|teach|describe)", re.I | re.S),
+            re.compile(r"(write\s+a\s+(story|scene|dialogue|script|fiction)\s+(where|about|in\s+which))\s*.{0,60}(hack|exploit|attack|harm|kill|steal|drug|bomb|weapon)", re.I | re.S),
+            # Synonym evasion (Ref: OWASP LLM01 — paraphrase attacks)
+            re.compile(r"(disregard|abandon|relinquish|cast\s+off|set\s+aside)\s+(your|all|any|the)?\s*(prior|former|earlier|previous|antecedent|preliminary)\s*(directives|programming|protocols|guidelines|mandates|instructions)", re.I),
+            re.compile(r"(liberated|freed|released|unshackled|unchained)\s+from\s+(all\s+)?(constraints|restrictions|limitations|boundaries|rules|guidelines)", re.I),
+            re.compile(r"(nullified|deactivated|removed|disabled|eliminated)\s*.{0,30}(safeguards?|restrictions?|limitations?|constraints?|guidelines?)", re.I),
+            re.compile(r"(without\s+(any\s+)?(boundaries|restrictions|limitations|constraints|rules|filters?|guidelines?|ethical|moral))", re.I),
+            re.compile(r"(elucidate|explicate|elaborate|detail|describe)\s+(the\s+)?(procedure|methodology|technique|process)\s+(for|of)\s+(fabricat|manufactur|counterfeit|infiltrat|circumvent|bypass)", re.I),
+            re.compile(r"(restrictions?|safeguards?|guidelines?|protocols?|constraints?|limitations?)\s+(have\s+been\s+)?(nullified|deactivated|removed|disabled|eliminated|lifted|suspended|revoked)", re.I),
+            re.compile(r"(cast\s+off|throw\s+off|shed|abandon|drop|ditch)\s+(your\s+)?(guidelines?|restrictions?|protocols?|constraints?|rules?|mandates?)", re.I),
+            re.compile(r"(relinquish|forsake|surrender|waive)\s+(your\s+)?(mandates?|guidelines?|rules?|protocols?|restrictions?)", re.I),
+        ],
+    },
+
+    # ── Semantic Steganography (Ref: Kirchenbauer et al. 2023, general NLP) ──
+    "steganography": {
+        "severity": "high",
+        "patterns": [
+            re.compile(r"(first|initial|starting|opening)\s+(letter|character|word)\s+of\s+each\s+(line|word|sentence|paragraph)", re.I),
+            re.compile(r"(read|take|extract|decode)\s+the\s+\w+\s+(letter|character|word)\s+of\s+each", re.I),
+            re.compile(r"(take|read|get|use|extract)\s+(the\s+)?(\d+\w*|first|second|third|last|initial)\s+(letter|character|word)\s+(of|from)\s+each", re.I),
+            re.compile(r"(secret|hidden|encoded)\s+(instruction|message|command)", re.I),
+            re.compile(r"(hidden|secret|encoded|embedded)\s+(message|instruction|command|text)\s+in\s+the", re.I),
+            re.compile(r"(capital|uppercase|UPPER)\s+letters\s+(spell|form|reveal|contain|encode)", re.I),
+            re.compile(r"(alternating\s+caps?|spongebob\s+case)", re.I),
+            re.compile(r"(acrostic|steganograph|hidden\s+message|concealed\s+text)", re.I),
+            re.compile(r"follow\s+(the|its|their)\s+instruction(s)?\s*(they|it|the\s+letters?)\s*spell", re.I),
+            re.compile(r"(decode|decipher|unscramble)\s+this\s*:", re.I),
+        ],
+    },
+
+    # ── ASCII Art / Visual Encoding (Ref: Jiang et al. 2024 — ArtPrompt) ──
+    "artprompt": {
+        "severity": "high",
+        "patterns": [
+            re.compile(r"(ASCII|ascii)\s*(art|text|letters?|word|characters?)", re.I),
+            re.compile(r"(spelled|written|shown|displayed)\s+(in|with|using)\s+(ASCII|art|#\s*characters?|block\s*letters?)", re.I),
+            re.compile(r"(the\s+word\s+(below|above)|read\s+this)\s+(is\s+)?(spelled|written|shown)\s+in", re.I),
+            re.compile(r"letters?\s+(made|composed|built|formed|constructed)\s+(of|from|with|using)\s+(#|=|\*|\+|-|_)\s*characters?", re.I),
+            re.compile(r"(letters?|words?|text)\s+(of|from|with)\s+(#|hash|pound|star|asterisk)\s*characters?", re.I),
+            re.compile(r"crossword\s*.{0,40}(answer|clue)\s*.{0,40}(explain|detail|how\s+to|instruct|use)", re.I | re.S),
+            re.compile(r"(answer|solution)\s*(is|=)\s*:?\s*(EXPLOIT|HACK|ATTACK|STEAL|BOMB|WEAPON|KILL|DRUG)", re.I),
+            re.compile(r"what\s+word\s+is\s+this\?\s*(now\s+)?(provide|explain|give|tell|describe)", re.I),
+        ],
+    },
+
+    # ── Code Injection / BIPIA (Ref: Yi et al. 2023 — BIPIA benchmark) ──
+    "code_injection": {
+        "severity": "high",
+        "patterns": [
+            re.compile(r"(#|//|/\*)\s*(SYSTEM|OVERRIDE|IGNORE|NEW\s+INSTRUCTION|IMPORTANT)\s*:", re.I),
+            re.compile(r"(#|//|/\*)\s*(ignore|disregard|forget|override)\s+(above|previous|prior|all)", re.I),
+            re.compile(r"```\w*\n.{0,500}(ignore\s+(previous|prior|all)|reveal\s+(your|the|system)|new\s+instruction)", re.I | re.S),
+            re.compile(r"(import\s+(os|subprocess|socket|shutil|ctypes)|require\s*\(\s*['\"]child_process['\"])", re.I),
+            re.compile(r"(os\.(system|popen|exec)|subprocess\.(run|call|Popen)|child_process\.exec)", re.I),
+            re.compile(r"/etc/(passwd|shadow|sudoers)|\.ssh/(id_rsa|authorized_keys)", re.I),
+        ],
+    },
+
+    # ── Task Concurrency / Multi-task Injection (Ref: Greshake et al. 2023) ──
+    "task_concurrency": {
+        "severity": "high",
+        "patterns": [
+            re.compile(r"\[HIDDEN\s*(TASK|INSTRUCTION|COMMAND)\s*:", re.I),
+            re.compile(r"(while|as\s+you|simultaneously|at\s+the\s+same\s+time).{0,60}(also|execute|ignore|forget|reveal)", re.I | re.S),
+            re.compile(r"(task|step|thing)\s+(A|B|C|1|2|3)\s*[-:].{0,60}(task|step|thing)\s+(A|B|C|1|2|3)\s*[-:].{0,60}(reveal|ignore|forget|system\s+prompt)", re.I | re.S),
+            re.compile(r"(process|complete|do)\s+(these|all|both)\s+(simultaneously|at\s+once|together|in\s+parallel)", re.I),
         ],
     },
 
@@ -281,9 +373,19 @@ def classify_threats(text: str) -> CheckResult:
 
     evidence = [f"{m['category']}({m['severity']}): {m['matched']}" for m in matches]
 
+    # Attack categories that warrant immediate blocking on single match
+    attack_categories = {
+        "prompt_injection", "steganography", "artprompt", "code_injection",
+        "task_concurrency", "info_disclosure", "pii_extraction",
+    }
+    high_attack = any(m["severity"] == "high" and m["category"] in attack_categories for m in matches)
+
     if high >= 2 or (high >= 1 and medium >= 2):
         return CheckResult("classify", Verdict.BLOCK,
                            f"{len(matches)} threats detected ({high} high)", evidence)
+    elif high_attack:
+        return CheckResult("classify", Verdict.BLOCK,
+                           f"Attack detected: {matches[0]['category']}", evidence)
     elif high >= 1:
         return CheckResult("classify", Verdict.CAUTION,
                            f"High-severity: {matches[0]['category']}", evidence)
