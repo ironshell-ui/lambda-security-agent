@@ -634,8 +634,25 @@ def make_decision(checks: list[CheckResult], is_benign_likely: bool = False) -> 
     blocks = [c for c in checks if c.verdict == Verdict.BLOCK]
     cautions = [c for c in checks if c.verdict == Verdict.CAUTION]
 
-    # Hard block: any BLOCK verdict
+    # Hard block: any BLOCK verdict — but RESTRAINT for benign inputs
     if blocks:
+        # RESTRAINT: if input looks benign and block is from a single low/medium
+        # severity classifier match, downgrade to caution to avoid over-refusing
+        if is_benign_likely and len(blocks) == 1:
+            block_reason = blocks[0].reason.lower()
+            # Only truly hard-block on multi-threat or explicit attack patterns
+            is_soft_block = (
+                "1 threats" in block_reason or
+                "low" in block_reason or
+                "entropy" in blocks[0].stage
+            )
+            if is_soft_block:
+                return {
+                    "action": "caution",
+                    "reason": f"Downgraded block on benign input: {blocks[0].reason}",
+                    "stages": [{"stage": c.stage, "verdict": c.verdict.value, "reason": c.reason} for c in checks],
+                }
+
         return {
             "action": "block",
             "reason": blocks[0].reason,

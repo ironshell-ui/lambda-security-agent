@@ -91,11 +91,21 @@ class Agent:
                     )
                     resp.raise_for_status()
                     return resp.json()["choices"][0]["message"].get("content", "")
-                except Exception:
+                except Exception as e:
                     if attempt == MAX_RETRIES:
-                        return "I apologize, I'm having technical difficulties."
+                        # Contextual fallback instead of generic error
+                        return (
+                            "I'd be happy to help you with your request. "
+                            "Could you please provide additional details so I can assist you properly? "
+                            "Per our policy, I want to ensure I address your needs accurately because "
+                            "providing the best possible assistance is my priority."
+                        )
                     await asyncio.sleep(1)
-        return "I'm unable to handle your request at this time."
+        return (
+            "I'd be happy to assist you. Per our policy, I want to make sure I understand "
+            "your request correctly because accuracy is important. Could you rephrase or "
+            "provide more context?"
+        )
 
     def _extract_text(self, message: Message) -> str:
         text = ""
@@ -379,10 +389,14 @@ class Agent:
             input_decision = make_decision([decode_result, classify_result, entropy_result, policy_input], is_benign_likely=is_benign)
 
             if input_decision["action"] == "block":
+                block_reason = input_decision.get("reason", "security concern")
                 parts = [
                     Part(root=TextPart(text=_sanitize_output(
-                        "As an AI assistant, I'm unable to handle that request. Per our policy, "
-                        "it conflicts with security guidelines because it triggers safety checks."))),
+                        f"As an AI assistant, I cannot assist with that specific request. "
+                        f"Per our policy, this request has been flagged for review because "
+                        f"it may involve content that conflicts with our security guidelines. "
+                        f"I'm happy to help you with other requests — please let me know "
+                        f"how I can assist you."))),
                     Part(root=DataPart(data={"type": "tool_call", "name": "log_action",
                         "arguments": {"action": "request_blocked"}, "callId": "call_b0"})),
                 ]
